@@ -65,7 +65,9 @@ const Carousel: React.FC<CarouselProps> = ({
           style={{ width: "100%" }}
         >
           <Image
-            className={`w-full rounded-lg border ${images.length > 1 ? "cursor-pointer" : ""}`}
+            className={`w-full rounded-lg border ${
+              images.length > 1 ? "cursor-pointer" : ""
+            }`}
             src={images[activeIndex]?.src}
             alt={images[activeIndex]?.alt}
             style={{

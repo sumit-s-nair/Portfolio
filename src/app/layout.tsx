@@ -18,13 +18,13 @@ const geistMono = localFont({
 // Metadata setup
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Sumit S Nair", // Replace with your actual title
-    description: "Sumit S Nair's Portfolio", // Replace with your actual description
+    title: "Sumit S Nair",
+    description: "Sumit S Nair's Portfolio",
     openGraph: {
-      title: "Sumit S Nair", // Replace with your actual Open Graph title
-      description: "Sumit S Nair's Portfolio", // Replace with your actual description
-      url: "https://your-website-url.com", // Replace with your actual URL
-      type: "website", // You can adjust this based on your content type
+      title: "Sumit S Nair",
+      description: "Sumit S Nair's Portfolio",
+      url: "https://sumit-s-nair.vercel.app/",
+      type: "website",
     },
   };
 }
@@ -34,7 +34,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
   return (
     <html lang="en">
       <head>
@@ -42,7 +41,7 @@ export default function RootLayout({
         <meta name="description" content="Sumit S Nair's Portfolio" />
         <meta name="og:title" content="Sumit S Nair" />
         <meta name="og:description" content="Sumit S Nair's Portfolio" />
-        <meta name="og:url" content="https://your-website-url.com" />
+        <meta name="og:url" content="https://sumit-s-nair.vercel.app/" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
@@ -63,9 +62,7 @@ export default function RootLayout({
         />
 
         {/* Content */}
-        <div style={{ position: "relative", zIndex: "1" }}>
-          {children}
-        </div>
+        <div style={{ position: "relative", zIndex: "1" }}>{children}</div>
       </body>
     </html>
   );
