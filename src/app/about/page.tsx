@@ -26,7 +26,7 @@ const About = () => {
 
       <main className="flex flex-col md:flex-row max-w-7xl mx-auto px-6 py-16 mt-24 space-y-12 md:space-y-0">
         {/* Side Navigation */}
-        <aside className="md:w-1/4 sticky top-24 space-y-6">
+        <aside className="hidden md:block md:w-1/4 sticky top-24 space-y-6">
           <nav className="flex flex-col space-y-4 text-lg">
             <button
               onClick={() => handleScroll("intro")}

@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { FaHome, FaUser, FaBriefcase, FaImages } from "react-icons/fa";
 
 const Header = () => {
@@ -11,6 +12,24 @@ const Header = () => {
     { label: "Work", href: "/work", icon: <FaBriefcase /> },
     { label: "Gallery", href: "/gallery", icon: <FaImages /> },
   ];
+
+  const [currentTime, setCurrentTime] = useState("");
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(
+        now.toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        })
+      );
+    };
+    updateTime();
+    const intervalId = setInterval(updateTime, 1000);
+    return () => clearInterval(intervalId);
+  }, []);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/50 dark:bg-black/50 shadow-md rounded-lg mx-auto max-w-7xl w-full mt-6">
@@ -40,7 +59,7 @@ const Header = () => {
 
         {/* Current Time for Desktop */}
         <div className="text-sm text-gray-700 dark:text-gray-300 hidden lg:block">
-          {/* Current Time Placeholder */}
+          {currentTime}
         </div>
       </div>
 
