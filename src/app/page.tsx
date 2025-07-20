@@ -3,10 +3,32 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Carousel } from "@/components/Carousel";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import Link from "next/link";
 import Image from "next/image";
+import { usePortfolioData } from "@/hooks/usePortfolioData";
 
 export default function Home() {
+  const { homeData, projects, loading, error } = usePortfolioData();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="large" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-red-500 text-center">
+          <h2 className="text-2xl font-bold mb-4">Error Loading Portfolio</h2>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <>
       <Header />
@@ -15,10 +37,10 @@ export default function Home() {
         {/* Hero Section */}
         <section className="text-center space-y-8">
           <h1 className="text-5xl font-extrabold text-white sm:text-6xl lg:text-7xl">
-            Hi, I&apos;m Sumit Santhosh Nair
+            {homeData?.heroTitle || "Hi, I'm Sumit Santhosh Nair"}
           </h1>
           <p className="text-lg sm:text-xl text-gray-300">
-            Programmer specialized in Web Development.
+            {homeData?.heroSubtitle}
           </p>
           <div className="mt-8">
             <Link
@@ -38,24 +60,16 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row justify-center items-center space-y-8 sm:space-y-0 sm:space-x-12">
             <div className="w-48 h-48 rounded-full flex items-center justify-center text-white text-3xl font-bold">
               <Image
-                src="/images/profile.jpg"
+                src={homeData?.profileImageUrl || "/images/profile.jpg"}
                 alt="Profile Image"
                 width={240}
                 height={240}
-                className="rounded-full"
+                className="rounded-full object-cover"
               />
             </div>
             <div className="max-w-lg text-center sm:text-left">
               <p className="text-lg text-gray-300">
-                I&apos;m a second-year engineering student passionate about
-                technology and creating impactful digital experiences.
-                Specializing in web development with the MERN stack and Flutter,
-                and some experience in Python. I develop websites for clubs like
-                GronIT and Nexus, collaborate on projects, and help teammates
-                solve challenges. As a videographer for Pixels, I&apos;ve
-                refined my creativity by covering campus events. I&apos;m eager
-                to apply my skills and creativity to new opportunities for
-                growth and contribution.
+                {homeData?.aboutText}
               </p>
             </div>
           </div>
@@ -64,24 +78,42 @@ export default function Home() {
         {/* Featured Projects Section */}
         <section className="mt-32 text-center space-y-12">
           <h2 className="text-3xl font-semibold text-gray-100">
-            Featured Projects
+            {homeData?.featuredProjectsTitle || "Featured Projects"}
           </h2>
           <div className="mt-8">
-            <Carousel
-              images={[
-                { src: "/images/assets/QuantumRepo.png", alt: "Quantum Repo" },
-                { src: "/images/assets/NexusPES.png", alt: "Nexus" },
-                { src: "/images/assets/QuillCove.png", alt: "Quillcove" },
-              ]}
-              indicator="line"
-              aspectRatio="16 / 9"
-            />
+            {projects && projects.length > 0 ? (
+              <Carousel
+                images={projects.filter(project => project.featured).map(project => ({
+                  src: project.imageUrl,
+                  alt: project.name
+                }))}
+                indicator="line"
+                aspectRatio="16 / 9"
+              />
+            ) : (
+              <div className="text-gray-400">No projects available</div>
+            )}
           </div>
           <div className="mt-8">
             <p className="text-lg text-gray-400">
-              Explore my projects like <strong>Quantum Repo</strong>, a GitHub
-              clone; <strong>Nexus</strong>, a 3D project with Three.js; and{" "}
-              <strong>Quillcove</strong>, a seamless notes app.
+              {homeData?.featuredProjectsDescription || (
+                projects && projects.length > 0 ? (
+                  <>
+                    Explore my projects like{" "}
+                    {projects.filter(project => project.featured).slice(0, 3).map((project, index) => (
+                      <span key={project.id}>
+                        <strong>{project.name}</strong>
+                        {index < Math.min(projects.filter(project => project.featured).length, 3) - 1 && 
+                          (index === Math.min(projects.filter(project => project.featured).length, 3) - 2 ? " and " : ", ")
+                        }
+                      </span>
+                    ))}
+                    .
+                  </>
+                ) : (
+                  "Check back soon for exciting projects!"
+                )
+              )}
             </p>
             <div className="mt-6">
               <Link

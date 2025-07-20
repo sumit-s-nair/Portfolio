@@ -4,26 +4,24 @@ import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
+import { usePortfolioData } from '@/hooks/usePortfolioData';
 
 const Gallery = () => {
   const [images, setImages] = useState<{ src: string; alt: string }[]>([]);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState<{ src: string; alt: string } | null>(null);
+  const { siteConfig } = usePortfolioData();
 
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const response = await fetch('/api/fetchImages', { method: 'GET' });
-        if (!response.ok) {
-          throw new Error('Failed to fetch images');
-        }
-        const data = await response.json();
-        setImages(data);
+        const { fetchGalleryImages } = await import('@/lib/firestore');
+        const galleryImages = await fetchGalleryImages();
+        setImages(galleryImages.map(img => ({ src: img.src, alt: img.alt })));
       } catch (error) {
-        console.error('Error fetching images:', error);
+        console.error('Error fetching gallery images:', error);
       }
     };
-
     fetchImages();
   }, []);
 
@@ -42,9 +40,12 @@ const Gallery = () => {
       <Header />
 
       <main className="max-w-7xl mx-auto px-6 py-16 mt-24">
-        <h1 className="text-4xl font-extrabold text-white text-center mb-12">
+        <h1 className="text-4xl font-extrabold text-white text-center mb-4">
           Photo Gallery
         </h1>
+        <p className="text-xl text-gray-300 text-center mb-12 max-w-3xl mx-auto">
+          {siteConfig?.tagline || "Capturing moments and memories through photography"}
+        </p>
 
         {/* Masonry Grid */}
         <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">

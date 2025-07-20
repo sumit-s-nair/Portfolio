@@ -1,11 +1,36 @@
 'use client';
 
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import { usePortfolioData } from '@/hooks/usePortfolioData';
+import { Project } from '@/lib/firestore';
 import Image from 'next/image';
 import Link from 'next/link';
 
 const Work = () => {
+  const { workData, loading, error, fetchProjectsByCategory } = usePortfolioData();
+  const [featuredProjects, setFeaturedProjects] = useState<Project[]>([]);
+  const [openSourceProjects, setOpenSourceProjects] = useState<Project[]>([]);
+  const [freelanceProjects, setFreelanceProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    const loadProjectsByCategory = async () => {
+      if (fetchProjectsByCategory) {
+        const [featured, openSource, freelance] = await Promise.all([
+          fetchProjectsByCategory('featured'),
+          fetchProjectsByCategory('open-source'), 
+          fetchProjectsByCategory('freelance')
+        ]);
+        setFeaturedProjects(featured);
+        setOpenSourceProjects(openSource);
+        setFreelanceProjects(freelance);
+      }
+    };
+    loadProjectsByCategory();
+  }, [fetchProjectsByCategory]);
+
   const handleScroll = (id: string) => {
     const element = document.getElementById(id);
     const headerOffset = 96;
@@ -20,26 +45,24 @@ const Work = () => {
     }
   };
 
-  const projects = [
-    {
-      title: 'Quantum Repo',
-      description: 'A GitHub clone offering advanced repository management features.',
-      image: '/images/assets/QuantumRepo.png',
-      link: 'https://quantum-repo.vercel.app/',
-    },
-    {
-      title: 'Nexus',
-      description: 'Interactive 3D web experiences built with Three.js.',
-      image: '/images/assets/NexusPES.png',
-      link: 'https://nexus-pesu.vercel.app/',
-    },
-    {
-      title: 'Quillcove',
-      description: 'A seamless note-taking app designed for productivity.',
-      image: '/images/assets/QuillCove.png',
-      link: '/projects/quillcove',
-    },
-  ];
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="large" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black/30 flex items-center justify-center">
+        <div className="text-red-500 text-center">
+          <h2 className="text-2xl font-bold mb-4">Error Loading Projects</h2>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -75,47 +98,121 @@ const Work = () => {
           {/* Featured Projects Section */}
           <div id="featured-projects" className="space-y-8">
             <h2 className="text-3xl font-semibold text-gray-100">Featured Projects</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {projects.map((project, index) => (
-                <div key={index} className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-                  <Image
-                    src={project.image}
-                    alt={project.title}
-                    width={400}
-                    height={300}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="p-4">
-                    <h3 className="text-xl font-semibold text-white">{project.title}</h3>
-                    <p className="text-gray-400 mt-2">{project.description}</p>
-                    <Link
-                      href={project.link}
-                      className="mt-4 inline-block px-4 py-2 text-sm text-blue-500 border border-blue-500 rounded-full hover:bg-blue-500 hover:text-white transition-colors"
-                    >
-                      View Project
-                    </Link>
+            {workData?.featuredProjectsDescription && (
+              <p className="text-lg text-gray-300 leading-relaxed">
+                {workData.featuredProjectsDescription}
+              </p>
+            )}
+            {featuredProjects.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {featuredProjects.map((project, index) => (
+                  <div key={project.id || index} className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden border border-gray-700 hover:border-red-500 transition-colors">
+                    <Image
+                      src={project.imageUrl}
+                      alt={project.name}
+                      width={400}
+                      height={300}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-4">
+                      <h3 className="text-xl font-semibold text-white">{project.name}</h3>
+                      <p className="text-gray-400 mt-2">{project.description}</p>
+                      <Link
+                        href={project.link}
+                        target={project.link.startsWith('http') ? '_blank' : '_self'}
+                        rel={project.link.startsWith('http') ? 'noopener noreferrer' : ''}
+                        className="mt-4 inline-block px-4 py-2 text-sm text-red-500 border border-red-500 rounded-full hover:bg-red-500 hover:text-white transition-colors"
+                      >
+                        View Project
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-gray-400 text-lg">No featured projects available at the moment</div>
+                <p className="text-gray-500 mt-2">Check back soon for exciting new projects!</p>
+              </div>
+            )}
           </div>
 
           {/* Open Source Section */}
           <div id="open-source" className="space-y-8">
             <h2 className="text-3xl font-semibold text-gray-100">Open Source Contributions</h2>
-            <p className="text-lg text-gray-300 leading-relaxed">
-              I actively contribute to open-source projects to give back to the developer community. 
-              My work includes fixing bugs, improving documentation, and adding new features to popular repositories.
-            </p>
+            <div className="bg-gray-800/30 rounded-lg p-6 backdrop-blur-sm border border-gray-700">
+              <p className="text-lg text-gray-300 leading-relaxed">
+                {workData?.openSourceDescription || 
+                  "I actively contribute to open-source projects to give back to the developer community. My work includes fixing bugs, improving documentation, and adding new features to popular repositories."
+                }
+              </p>
+            </div>
+            {openSourceProjects.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {openSourceProjects.map((project, index) => (
+                  <div key={project.id || index} className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden border border-gray-700 hover:border-red-500 transition-colors">
+                    <Image
+                      src={project.imageUrl}
+                      alt={project.name}
+                      width={400}
+                      height={300}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-4">
+                      <h3 className="text-xl font-semibold text-white">{project.name}</h3>
+                      <p className="text-gray-400 mt-2">{project.description}</p>
+                      <Link
+                        href={project.link}
+                        target={project.link.startsWith('http') ? '_blank' : '_self'}
+                        rel={project.link.startsWith('http') ? 'noopener noreferrer' : ''}
+                        className="mt-4 inline-block px-4 py-2 text-sm text-red-500 border border-red-500 rounded-full hover:bg-red-500 hover:text-white transition-colors"
+                      >
+                        View Project
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Freelance Work Section */}
           <div id="freelance-work" className="space-y-8">
             <h2 className="text-3xl font-semibold text-gray-100">Freelance Work</h2>
-            <p className="text-lg text-gray-300 leading-relaxed">
-              I have worked with various clients to design and develop responsive websites and applications tailored to their needs. 
-              My focus is on delivering clean, efficient, and user-friendly solutions.
-            </p>
+            <div className="bg-gray-800/30 rounded-lg p-6 backdrop-blur-sm border border-gray-700">
+              <p className="text-lg text-gray-300 leading-relaxed">
+                {workData?.freelanceDescription ||
+                  "I have worked with various clients to design and develop responsive websites and applications tailored to their needs. My focus is on delivering clean, efficient, and user-friendly solutions."
+                }
+              </p>
+            </div>
+            {freelanceProjects.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {freelanceProjects.map((project, index) => (
+                  <div key={project.id || index} className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden border border-gray-700 hover:border-red-500 transition-colors">
+                    <Image
+                      src={project.imageUrl}
+                      alt={project.name}
+                      width={400}
+                      height={300}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-4">
+                      <h3 className="text-xl font-semibold text-white">{project.name}</h3>
+                      <p className="text-gray-400 mt-2">{project.description}</p>
+                      <Link
+                        href={project.link}
+                        target={project.link.startsWith('http') ? '_blank' : '_self'}
+                        rel={project.link.startsWith('http') ? 'noopener noreferrer' : ''}
+                        className="mt-4 inline-block px-4 py-2 text-sm text-red-500 border border-red-500 rounded-full hover:bg-red-500 hover:text-white transition-colors"
+                      >
+                        View Project
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </main>

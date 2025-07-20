@@ -3,9 +3,11 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaHome, FaUser, FaBriefcase, FaImages } from "react-icons/fa";
+import { usePortfolioData } from "@/hooks/usePortfolioData";
 
 const Header = () => {
   const pathname = usePathname();
+  const { aboutData } = usePortfolioData();
   const navItems = [
     { label: "Home", href: "/", icon: <FaHome /> },
     { label: "About", href: "/about", icon: <FaUser /> },
@@ -36,7 +38,7 @@ const Header = () => {
       <div className="hidden lg:flex items-center justify-between px-6 py-4 mx-auto w-full">
         {/* Location & Time for Desktop */}
         <div className="text-sm text-gray-700 dark:text-gray-300 hidden lg:block">
-          Bengaluru, Karnataka
+          {aboutData?.location || "Bengaluru, Karnataka"}
         </div>
 
         {/* Navigation Links */}
@@ -47,7 +49,7 @@ const Header = () => {
               href={item.href}
               className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium ${
                 pathname === item.href
-                  ? "border border-red-900 text-white dark:hover:bg-red-500"
+                  ? "border border-red-900 text-white dark:hover:bg-red-500/20"
                   : "text-gray-700 dark:text-gray-300 hover:bg-zinc-200 dark:hover:bg-zinc-800"
               }`}
             >

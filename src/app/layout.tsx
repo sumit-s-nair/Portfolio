@@ -1,30 +1,34 @@
-import localFont from "next/font/local";
 import "./globals.css";
 import { Metadata } from "next";
 import { Background } from "@/components/Background";
+import { AuthProvider } from "@/contexts/AuthContext";
 
-// Import custom fonts
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
-
-// Metadata setup
+// Metadata setup - Consider making this dynamic based on Firestore data in the future
 export async function generateMetadata(): Promise<Metadata> {
+  // For now, use static metadata. In production, you could fetch from Firestore here
+  // Note: Firestore calls in generateMetadata should be cached for performance
   return {
-    title: "Sumit S Nair",
-    description: "Sumit S Nair's Portfolio",
+    title: "Sumit's Portfolio",
+    description: "Welcome to the portfolio of Sumit S Nair. Discover my journey, skills, and creations in web development.",
     openGraph: {
-      title: "Sumit S Nair",
-      description: "Sumit S Nair's Portfolio",
+      title: "Sumit's Portfolio",
+      description: "Explore my passion for web development and creativity.",
       url: "https://sumit-s-nair.vercel.app/",
       type: "website",
+      images: [
+        {
+          url: "/images/profile.jpg",
+          width: 1200,
+          height: 800,
+          alt: "Sumit S Nair - Portfolio",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Sumit's Portfolio",
+      description: "Welcome to the portfolio of Sumit S Nair.",
+      images: ["/images/profile.jpg"],
     },
   };
 }
@@ -37,32 +41,29 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Metadata for SEO and social sharing */}
-        <meta name="description" content="Sumit S Nair's Portfolio" />
-        <meta name="og:title" content="Sumit S Nair" />
-        <meta name="og:description" content="Sumit S Nair's Portfolio" />
-        <meta name="og:url" content="https://sumit-s-nair.vercel.app/" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Sumit&apos;s Portfolio</title>
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {/* Background Component with z-index to ensure it stays behind the content */}
-        <Background
-          style={{ zIndex: "-1", position: "fixed" }}
-          mask="cursor"
-          dots={{
-            display: true,
-            opacity: 0.4,
-            size: "20",
-          }}
-          gradient={{
-            display: true,
-            opacity: 0.4,
-          }}
-        />
+      <body className="antialiased bg-gray-900 text-white">
+        <AuthProvider>
+          {/* Background */}
+          <Background
+            style={{ zIndex: "-1", position: "fixed" }}
+            mask="cursor"
+            dots={{
+              display: true,
+              opacity: 0.4,
+              size: "20",
+            }}
+            gradient={{
+              display: true,
+              opacity: 0.4,
+            }}
+          />
 
-        {/* Content */}
-        <div style={{ position: "relative", zIndex: "1" }}>{children}</div>
+          {/* Content */}
+          <div style={{ position: "relative", zIndex: "1" }}>{children}</div>
+        </AuthProvider>
       </body>
     </html>
   );
