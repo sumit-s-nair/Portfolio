@@ -14,7 +14,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.replace("/admin/auth");
+      router.replace("/auth");
     }
   }, [user, loading, router]);
 
