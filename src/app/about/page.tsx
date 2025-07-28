@@ -114,7 +114,13 @@ const About = () => {
             </div>
             {aboutData?.introduction && (
               <div className="text-lg text-gray-300 leading-relaxed">
-                <p>{aboutData.introduction}</p>
+                {aboutData.introduction
+                  .split(/<br\s*\/?>/i)
+                  .map((para, idx) =>
+                    para.trim() ? (
+                      <p key={idx} className="mb-4 last:mb-0">{para.trim()}</p>
+                    ) : null
+                  )}
               </div>
             )}
           </div>
