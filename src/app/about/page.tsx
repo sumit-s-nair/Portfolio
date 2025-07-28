@@ -43,6 +43,16 @@ const About = () => {
     );
   }
 
+  const flattenedExperience =
+    aboutData?.experience.flatMap((exp) => [
+      { ...exp, isPromotion: false },
+      ...(exp.promotions || []).map((promo) => ({
+        ...promo,
+        company: exp.company,
+        isPromotion: true,
+      })),
+    ]) || [];
+
   return (
     <>
       <Header />
@@ -111,13 +121,20 @@ const About = () => {
 
           {/* Skills Section */}
           <div id="skills" className="space-y-8">
-            <h2 className="text-3xl font-semibold text-gray-100">Skills</h2>
+            <h2 className="text-3xl font-semibold text-gray-100">
+              Technical Skills
+            </h2>
             {aboutData?.skills && aboutData.skills.length > 0 ? (
-              <ul className="list-disc list-inside mt-4 text-lg text-gray-300">
+              <div className="flex flex-wrap gap-4 mt-4">
                 {aboutData.skills.map((skill, index) => (
-                  <li key={index}>{skill}</li>
+                  <div
+                    key={index}
+                    className="bg-gray-800/60 border border-gray-700 rounded-lg px-4 py-2 text-lg text-gray-300 transition-all duration-300 ease-out hover:bg-red-900/50 hover:border-red-700 hover:text-white hover:-translate-y-1 cursor-default"
+                  >
+                    {skill}
+                  </div>
                 ))}
-              </ul>
+              </div>
             ) : (
               <div className="text-gray-400">No skills available</div>
             )}
@@ -125,44 +142,105 @@ const About = () => {
 
           {/* Experience Section */}
           <div id="experience" className="space-y-8">
-            <h2 className="text-3xl font-semibold text-gray-100">Experience</h2>
-            {aboutData?.experience && aboutData.experience.length > 0 ? (
-              <div className="space-y-6">
-                {aboutData.experience.map((exp, index) => (
-                  <div key={index} className="relative pl-8 border-l-2 border-gray-600">
-                    {/* Timeline dot */}
-                    <div className="absolute w-4 h-4 bg-red-600 rounded-full -left-2 top-2"></div>
+            <h2 className="text-3xl font-semibold text-gray-100 mb-8">
+              Professional Journey
+            </h2>
+            {flattenedExperience.length > 0 ? (
+              <div className="relative">
+                {/* Timeline bar */}
+                <div className="absolute top-0 left-4 w-2 h-full bg-gradient-to-b from-red-600 via-red-800 to-transparent rounded-sm"></div>
 
-                    <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-gray-700">
-                      <div className="mb-4">
-                        <h3 className="text-xl font-semibold text-white">
-                          {exp.title}
-                        </h3>
-                        <p className="text-lg text-gray-300 font-medium">
-                          {exp.company}
-                        </p>
-                        <p className="text-sm text-gray-400">
-                          {exp.duration}
-                        </p>
-                      </div>
-                      <p className="text-gray-300 leading-relaxed">
-                        {exp.description}
-                      </p>
+                {flattenedExperience.map((job, index) => (
+                  <div key={index} className="relative mb-8 group">
+                    <div
+                      className={`absolute left-5 border-4 border-black/30 rounded-full z-10 -translate-x-1/2 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(239,68,68,0.7)] transition-all duration-300 ease-out ${
+                        job.isPromotion
+                          ? "top-[18px] w-6 h-6 bg-slate-700 group-hover:bg-red-600"
+                          : "top-[22px] w-8 h-8 bg-rose-950 group-hover:bg-red-500"
+                      }`}
+                    ></div>
 
-                      {exp.promotions && exp.promotions.length > 0 && (
-                        <div className="mt-6">
-                          <h4 className="text-lg font-semibold text-gray-200 mb-2">Previous Roles</h4>
-                          <div className="space-y-4">
-                            {exp.promotions.map((promo, promoIdx) => (
-                              <div key={promoIdx} className="bg-black/10 rounded-md p-4 border border-gray-800">
-                                <div className="flex flex-col md:flex-row md:items-center md:space-x-4">
-                                  <span className="font-semibold text-white">{promo.title}</span>
-                                  <span className="text-sm text-gray-400 md:ml-2">{promo.duration}</span>
-                                </div>
-                                <p className="text-gray-300 mt-2">{promo.description}</p>
-                              </div>
-                            ))}
+                    {/* Card Container */}
+                    <div
+                      className={`${
+                        job.isPromotion ? "ml-20" : "ml-12"
+                      } transition-all duration-300 ease-out ${
+                        job.isPromotion
+                          ? "bg-gradient-to-br from-gray-900/50 to-gray-900/20 backdrop-blur-sm rounded-xl p-4 border border-gray-800 hover:border-gray-700"
+                          : "bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-gray-800 shadow-lg hover:border-red-600/60 hover:-translate-y-1"
+                      }`}
+                    >
+                      {/* Main Role Card Content */}
+                      {!job.isPromotion && (
+                        <>
+                          <div className="flex flex-col md:flex-row md:items-start md:justify-between">
+                            <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-6 w-6 text-red-400 flex-shrink-0"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                />
+                              </svg>
+                              <span>{job.title}</span>
+                            </h3>
+                            <p className="text-sm text-gray-400 mt-2 md:mt-1 md:ml-4 flex-shrink-0 flex items-center gap-2">
+                              <svg
+                                className="w-4 h-4 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                />
+                              </svg>
+                              {job.duration}
+                            </p>
                           </div>
+                          <p className="text-lg text-red-200 font-semibold mt-1">
+                            {job.company}
+                          </p>
+                          <ul className="list-disc pl-5 mt-4 space-y-2 text-gray-300">
+                            {job.description
+                              .split("•")
+                              .map(
+                                (item, i) =>
+                                  item.trim() && <li key={i}>{item.trim()}</li>
+                              )}
+                          </ul>
+                        </>
+                      )}
+
+                      {/* Promotion Card Content */}
+                      {job.isPromotion && (
+                        <div className="m-2">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
+                            <h4 className="font-semibold text-white text-lg">
+                              {job.title}
+                            </h4>
+                            <p className="text-xs text-gray-400 mt-1 sm:mt-0 sm:ml-4 flex-shrink-0">
+                              {job.duration}
+                            </p>
+                          </div>
+                          <ul className="list-disc pl-5 mt-2 space-y-1 text-sm text-gray-400">
+                            {job.description
+                              .split("•")
+                              .map(
+                                (item, i) =>
+                                  item.trim() && <li key={i}>{item.trim()}</li>
+                              )}
+                          </ul>
                         </div>
                       )}
                     </div>
@@ -180,7 +258,10 @@ const About = () => {
             {aboutData?.education && aboutData.education.length > 0 ? (
               <div className="text-lg text-gray-300">
                 {aboutData.education.map((edu, index) => (
-                  <div key={index} className="mb-4 bg-black/20 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
+                  <div
+                    key={index}
+                    className="mb-4 bg-black/20 backdrop-blur-sm rounded-lg p-4 border border-gray-700"
+                  >
                     <p className="font-semibold text-white">
                       {edu.institution}
                     </p>
